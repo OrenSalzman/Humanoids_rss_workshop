@@ -66,13 +66,40 @@ Transforming this insight into a planning framework requires addressing three fu
 \end{itemize}
  
 In the following, we detail how our planning framework addresses each of these questions.
+
+%\algrenewcommand\algorithmicindent{.8em}
+\begin{algorithm}[tb]
+\caption{Planning framework}
+\label{alg:main}	
+\begin{algorithmic}[1]
+%\small
+\While{Solution not found} 
+	\While{Not in local minima} 
+		\State Run MHA*
+	\EndWhile
+	
+	\State Get user guidance
+	\State Add new heuristic and queue to MHA*
+	\While{In local minima} 
+		\State Run MHA*
+		\Comment{with bias towards user's guide}
+	\EndWhile
+	\State Remove new queue from MHA*
+
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
 \section{Planning framework}
 \label{sec:planning}
 In this work we build upon multi-heuristic A* (MHA*)~\cite{ASNHL16}, a search-based planning algorithm that takes in multiple, arbitrarily inadmissible heuristic functions in addition to a single consistent heuristic.
 It uses all of them simultaneously to search in a principled, A*-like manner, that was shown to be both complete and ensures bounds on sub-optimality. 
 This allows the search to efficiently combine the guiding powers of different heuristic functions. 
 
+\os{refer to alg.~\ref{alg:main} here and within subsections}
+
 \subsection{Invoking user guidance}
+\label{sec:q1}
 Invoking user guidance requires (i)~disrupting a user and (ii)~waiting a non-negligible time for the user to produce guidance.
 Thus, we aim at invoking the user only when the planner is in a \emph{local minima}. Namely when it identifies that its search does not progress towards the goal. 
 
@@ -103,8 +130,12 @@ Furthermore, we assume that there exists a family of admissible\footnote{\os{do 
 Given a user guide in the form of a configuration $\hat{q}$, we dynamically generate a new heuristic $\hat{h} = h_{\hat{q}} + h_0$.
 Namely,~$\hat{h}$ estimates the 
 cost to reach the goal (via the term $h_0$) by passing through the guide $\hat{q}$ (via the term $h_{\hat{q}}$).
-Equipped with the heuristic $\hat{h}$, we add a new queue to the MHA*. 
-\os{talk about implication, mention that states are shared between queues and when to remove queue}
+Equipped with the heuristic $\hat{h}$, we add a new queue to the MHA* algorithm prioritized using the heuristic $\hat{h}$. 
+States expanded using this queue will be biased towards $\hat{q}$.
+Note that in the MHA* algorithm,nodes are shared between the different queues.
+Thus, once a state has been found that can be used to get the planner out of the local minima, it will be expanded by the other queues using their heuristics.
+Once this is detected (using the same mechanism to detect the local minima detailed in Sec.~\ref{sec:q1}), the newly-added queue is removed.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Evaluation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
