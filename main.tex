@@ -31,8 +31,8 @@
 We consider the problem of planning a collision-free path for a high-dimensional robot.
 Specifically, we suggest a planning framework where a motion-planning algorithm can obtain guidance from a user.
 In contrast to existing approaches, we suggest to seek user guidance only when the planner identifies that it is in a local minimum, namely when it ceases to make significant progress towards the goal.
-User guidance is given in the form of an intermediate configuration $\hat{q}$ which, in turn, is used to bias the progress of the planner towards $\hat{q}$.
-We demonstrate our approach for the case where the planning algorithm is Multi-Heuristic A* (MHA*) and the robot is a \os{XXX}-DOF humanoid.
+User guidance is given in the form of an intermediate configuration $\hat{q}$ which, in turn, is used to bias the planner to go through $\hat{q}$.
+We demonstrate our approach for the case where the planning algorithm is Multi-Heuristic A* (MHA*) and the robot is a 34-DOF humanoid.
 \end{abstract}
 
 \IEEEpeerreviewmaketitle
@@ -140,13 +140,30 @@ Specifically, in such algorithms,  we proceed by iteratively choosing  the curre
 We suggest to identify when the planner is in a local minima as follows:
 Let~$\Q$ be a priority queue 
 ordered according to some heuristic function~$h_\Q(\cdot)$,
-$s(i)$ be the node expanded from~$\Q$ at the $i$th iteration and $\omega$ a parameter.
-We define $\kappa_\Q(\omega,i) = \min \{h_\Q(s(i-\omega)), \ldots h_\Q(s(i))\}$ to be the minimum heuristic value attained by the last $\omega$ nodes that were expanded from~$\Q$ (assuming we are at the $i$'th iteration).
+$s_i$ be the node expanded from~$\Q$ at the $i$'th iteration and $\omega_1, \omega_2$ parameters such that $\omega_1 > \omega_2$.
+%
+We define 
+$\kappa_\Q(i, \omega_1) = \min_{i-\omega_1 \leq j \leq i} \{ h_\Q(s_j)\}$.
+Namely, $\kappa_\Q(\omega,i)$ denotes the minimal value attained by $h_\Q$ in the past $\omega_1$ states. 
+%
 We will say that the planner is in a local minima for $\Q$ if 
-$\kappa_\Q(\omega,i) \geq \kappa_\Q(\omega,i-1) - \varepsilon$.
-Namely, if there was no reduction 
+$\kappa_\Q(i, \omega_1) \geq \kappa_\Q(i - \omega_2, \omega_1 - i) - \varepsilon$.
+Namely, if looking at the previous $\omega_1$ iterations, 
+there was no reduction 
 (by more than some threshold $\varepsilon$) 
-in the minimum value of~$h_\Q$ in the last $\omega$ states expanded from $\Q$.
+in the minimum value of~$h_\Q$ 
+in the last $\omega_2$ states expanded from $\Q$.
+
+%
+%$\{h_\Q(s(i-\omega)), \ldots h_\Q(s(i))\}$ to be the minimum heuristic value attained by the last $\omega$ nodes that were expanded from~$\Q$ (assuming we are at the $i$'th iteration).
+%We will say that the planner is in a local minima for $\Q$ if 
+%$\kappa_\Q(\omega,i) \geq \kappa_\Q(\omega,i-1) - \varepsilon$.
+%Namely, if there was no reduction 
+%(by more than some threshold $\varepsilon$) 
+%in the minimum value of~$h_\Q$ in the last $\omega$ states expanded from $\Q$.
+
+
+
 
 \os{possibly remove next paragraph}
 
@@ -163,33 +180,32 @@ in the form of an intermediate configuration $\hat{q}$ that is used to guide the
 
 The framework includes a graphical user interface (GUI) capable of  depicting the robot and the workspace.
 Once user guidance is invoked, 
-a configuration in the local minima is obtained and the robot is placed in that configuration (as well as the start and target configurations) in the GUI.
+a configuration in the local minima is obtained and the robot is placed in that configuration (as well as the start configuration and target region) in the GUI.
 This allows the user to try and understand where the planner faces difficulty and how to guide it out of the local minima.
 The user then suggests the guidance $\hat{q}$ by moving the robot's joints and end effectors.
 
 \subsection{Using user guidance}
 \label{sec:q3}
-To provide completeness guaranteesm, MHA* has to have at least one admissible heuristic~$h_{0}$.
+We assume that MHA* has at least one heuristic $h_{\text{goal}}$ which approximates the cost to reach the goal from every state.
 Furthermore, we assume that there exists a family of (possibly inadmissible) heuristic functions $\H$, such that for every configuration~$q$, there exists a heuristic $h_q \in \H$ where $h_q(s)$ estimates the cost to reach $q$ from state $s$.
 %%%%
 
-Given a user guide in the form of a configuration $\hat{q}$, we dynamically generate a new heuristic %$\hat{h} = h_{\hat{q}} + h_0$.
-$$
+Given a user guide in the form of a configuration $\hat{q}$, we dynamically generate a new heuristic $$
     \hat{h}(s)= 
 \begin{cases}
-    h_{\hat{q}}(s) + h_0(s),	& 
+    h_{\hat{q}}(s) + h_{\text{goal}}(s),	& 
     		\text{if } \hat{q} \text{ is not an ancestor of } s,\\
-    h_0(s),            		& 
+    h_{\textbf{•}{goal}}(s),            		& 
     		\text{if } \hat{q} \text{ is an ancestor of } s.
 \end{cases}
 $$
 Namely,~$\hat{h}$ estimates the 
-cost to reach the goal (via the term~$h_0$) by passing through $\hat{q}$ (via the term $h_{\hat{q}}$). If the state was reached by passing through $\hat{q}$, then the value of $\hat{h}$ is simply the estimation of the cost to reach the goal.
+cost to reach the goal (via the term~$h_{\text{goal}}$) by passing through $\hat{q}$ (via the term $h_{\hat{q}}$). If the state was reached by passing through $\hat{q}$, then the value of $\hat{h}$ is simply the estimation of the cost to reach the goal.
 
 
 Equipped with the heuristic $\hat{h}$, we add a new queue to the MHA* algorithm prioritized using the heuristic $\hat{h}$ (Alg~\ref{alg:main}, line~4). 
-States expanded using this queue will be biased towards $\hat{q}$.
-Note that in the MHA* algorithm, nodes are shared between the different queues.
+States expanded using this queue will be biased towards $\hat{q}$ (see also~\cite{INL15} for more details on adding heuristics and queues dynamically to MHA*).
+Note that in MHA*, nodes are shared between the different queues.
 Thus, once a state has been found that can be used to get the planner out of the local minima, it will be expanded by the other queues using their heuristics.
 Once this is detected (Alg~\ref{alg:main}, line~8), the newly-added queue is removed.
 
@@ -204,7 +220,9 @@ As we can see \os{detail experiment + add figure}
 While providing promising initial results, our framework is far from being complete.
 We are interested in experimenting with alternative forms of user guidance such as providing a \emph{constrained submanifold} of the configuration space. This may be used to guide the humanoid to use the railing while planning the stairs.
 Furthermore, we would like to have a \emph{recursive} implementation of our framework.
-Namely, the planner can be in a local minima while trying to escape a local minima. This should be identified and then the user should either (i)~provide new guidance or 
+Namely, the planner can be in a local minima while trying to escape a local minima. This should be identified and then the user should either (i)~provide new guidance 
+\os{This is already implemented}
+or 
 (ii)~provide  guidance  toward the previoulsy provided guidance.
 Finally, once a guide is given, we want our planner to be able to \emph{generalize} the guidance obtained to future local minima that are similar in nature to the ones encountered.
 
