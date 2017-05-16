@@ -209,6 +209,10 @@ Note that in MHA*, nodes are shared between the different queues.
 Thus, once a state has been found that can be used to get the planner out of the local minima, it will be expanded by the other queues using their heuristics.
 Once this is detected (Alg~\ref{alg:main}, line~8), the newly-added queue is removed.
 
+Our implementation is slightly more complicated than that described in Alg~\ref{alg:main}.
+Specifically, the planner can be in a local minima in the dynamically-generated queue that is used to escape the original local minima. 
+In such cases we request new guidance from the user and replace the previous guidance with the new one.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Evaluation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -219,11 +223,11 @@ As we can see \os{detail experiment + add figure}
 
 While providing promising initial results, our framework is far from being complete.
 We are interested in experimenting with alternative forms of user guidance such as providing a \emph{constrained submanifold} of the configuration space. This may be used to guide the humanoid to use the railing while planning the stairs.
-Furthermore, we would like to have a \emph{recursive} implementation of our framework.
-Namely, the planner can be in a local minima while trying to escape a local minima. This should be identified and then the user should either (i)~provide new guidance 
-\os{This is already implemented}
-or 
-(ii)~provide  guidance  toward the previoulsy provided guidance.
+%Furthermore, we would like to have a \emph{recursive} implementation of our framework.
+%Namely, the planner can be in a local minima while trying to escape a local minima. This should be identified and then the user should either (i)~provide new guidance 
+%\os{This is already implemented}
+%or 
+%(ii)~provide  guidance  toward the previoulsy provided guidance.
 Finally, once a guide is given, we want our planner to be able to \emph{generalize} the guidance obtained to future local minima that are similar in nature to the ones encountered.
 
 %\newpage
