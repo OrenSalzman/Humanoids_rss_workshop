@@ -48,12 +48,12 @@ Motion-planning is a fundamental problem in robotics that has been studied for o
 However, efficiently planning paths in high-dimensional, constrained spaces remains an ongoing challenge.
 One approach to address this challenge is to incorporate user guidance.
 While there has been much work on planning using human demonstration 
-(see, e.g.,~\cite{HS16, PHCL16, SHLA16, YA17} for a partial list), 
+(see, e.g.,~\cite{HS16, PHCL16, SHLA16, YA17}), 
 %(see, e.g.,~\cite{SHLA16, YA17} for a partial list), 
-there has been far less research incorporating guidance as an interactive part of the planning loop.
+there has been far less research incorporating guidance as an interactive part of the planning~loop.
 
 Broadly speaking, interactive planning has been typically used in the context of sampling-based motion-planning algorithms~\cite{L06}.
-User guidance is employed by biasing the sampling scheme of the planner.
+User guidance was employed by biasing the sampling scheme of the planner.
 This was done by having the user mark regions in the \emph{workspace} that should be avoided or 
 explored~\cite{DSJA14}.
 %explored~\cite{DSJA14, MTMKDC15, YPB15}.
@@ -62,12 +62,12 @@ Alternatively interactive devices such as a 3D mouse or a haptic arm have been u
 sampling domain~\cite{BTFF16, FTF09, TFF12}.
 %Interestingly, in all the examples mentioned, an implicit assumption taken is that the user is dedicated to guide and interact with the planning algorithm.
 
-We are interested in planning in high-dimensional, constrained spaces such as those encountered by a humanoid robot (see Fig.~\ref{Fig:robot}).
+We are interested in planning in high-dimensional, constrained spaces such as those encountered by a humanoid robot (see Fig.~\ref{fig:robot}).
 In such settings, workspace regions often give little guidance to the planner due to the dimension of the configuration space as well as the physical constraints of the robot.
 Similarly, obtaining user guidance in the configuration space is extremely time consuming, even for expert users.
 
 Thus,  while beneficial, user guidance should be employed scarcely.
-Our key insight is that carefully chosen individual configurations suggested by a user can be used to effectively guide the planner.
+Our key insight is that carefully chosen individual configurations suggested by a user can be used to effectively guide the planner when in need of guidance.
 
 
 Transforming this insight into a planning framework requires addressing three fundamental questions:
@@ -80,6 +80,16 @@ Transforming this insight into a planning framework requires addressing three fu
  
 In the following, we detail our planning framework (Sec.~\ref{sec:high}) and how it addresses each of these questions (Sec.~\ref{sec:q1}-\ref{sec:q3}).
 We then continue (Sec.~\ref{sec:eval}) to demonstrate its effectiveness in simulations and conclude by describing possible additional future work.
+
+\begin{figure}[tb]
+  \centering
+  	\includegraphics[width=0.283\textwidth]{workspace.png}
+  	\vspace{-2mm}
+  \caption{
+		Planning domain---Humanoid robot needs to climb the stairs while avoiding collision with the obstacles and while adhering to the physical stability constraints.
+  	}
+   	\label{fig:robot}
+\end{figure}
 
 %\algrenewcommand\algorithmicindent{.8em}
 \begin{algorithm}[tb]
@@ -135,8 +145,8 @@ This allows the search to efficiently combine the guiding powers of different he
 \subsection{Invoking user guidance}
 \label{sec:q1}
 The heuristic functions of search-based planning algorithms, such as MHA*, can be used to estimate in a principled manner when the planner is in a local minima (Alg~\ref{alg:main}, lines 2, 6). 
-Specifically, in such algorithms,  we proceed by iteratively choosing  the current-best state from a priority queue and computing all its successors. 
-
+%Specifically, in such algorithms,  we proceed by iteratively choosing  the current-best state from a priority queue and computing all its successors. 
+%
 We suggest to identify when the planner is in a local minima as follows:
 Let~$\Q$ be a priority queue 
 ordered according to some heuristic function~$h_\Q(\cdot)$,
@@ -162,15 +172,15 @@ in the last $\omega_2$ states expanded from $\Q$.
 %(by more than some threshold $\varepsilon$) 
 %in the minimum value of~$h_\Q$ in the last $\omega$ states expanded from $\Q$.
 
-
-
-
-\os{possibly remove next paragraph}
-
-Once a local minimum is identified, should we immediately ask for user guidance? If we are in a shallow local minima, providing the planner with additional computation time (possibly much shorter than the time required by the user to produce guidance) may be sufficient.
-This is an example of the ski rental problem~\cite{KMMO94} in which there is a tradeoff between continuing to pay a repeating cost (letting the algorithm try to escape its local minima) or paying a one-time cost which eliminates or reduces the repeating cost (invoking user guidance).
-By using a randomized approach we can obtain a $\frac{e}{e-1}\approx1.58$ competitive ratio\footnote{The competitive ratio of an online algorithm \texttt{ALG} is the ratio between the performance of \texttt{ALG} and the performance of an optimal offline algorithm.}~\cite{KMMO94}.
-Indeed, this approach has already been used to identify when robots should ask for help from a user~\cite{RV12}.
+%
+%
+%
+%\os{possibly remove next paragraph}
+%
+%Once a local minimum is identified, should we immediately ask for user guidance? If we are in a shallow local minima, providing the planner with additional computation time (possibly much shorter than the time required by the user to produce guidance) may be sufficient.
+%This is an example of the ski rental problem~\cite{KMMO94} in which there is a tradeoff between continuing to pay a repeating cost (letting the algorithm try to escape its local minima) or paying a one-time cost which eliminates or reduces the repeating cost (invoking user guidance).
+%By using a randomized approach we can obtain a $\frac{e}{e-1}\approx1.58$ competitive ratio\footnote{The competitive ratio of an online algorithm \texttt{ALG} is the ratio between the performance of \texttt{ALG} and the performance of an optimal offline algorithm.}~\cite{KMMO94}.
+%Indeed, this approach has already been used to identify when robots should ask for help from a user~\cite{RV12}.
 
 \subsection{Form of user guidance}
 \label{sec:q2}
@@ -217,9 +227,27 @@ In such cases we request new guidance from the user and replace the previous gui
 %Evaluation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Evaluation and future work}\label{sec:eval}
-We implemented the planning framework described in Sec~\ref{sec:planning} for the case of a humanoid robot. We gave the robot the task of climbing up a set of stairs while avoiding collision with obstacles as well as adhering to the physical constraints of the robot.
+We implemented the planning framework described in Sec~\ref{sec:planning} for the case of a humanoid robot. We gave the robot the task of climbing up a set of stairs while avoiding collision with obstacles as well as adhering to the physical constraints of the robot (see Fig.~\ref{fig:robot}).
+We used MHA* with one non-admissible heuristic called the \emph{baseline} heuristic.
+Results demonstrating the effectiveness of our framework are depicted in Fig.~\ref{fig:res}
+as well as in the supplementary videos\footnote{Planning with guidance
+\url{https://drive.google.com/open?id=0B5cCvECYZLYZTjFZeGR0WG40QlU}.}
+\footnote{Planning without guidance \url{https://drive.google.com/open?id=0B5cCvECYZLYZdFM2SU1CUnJzNU0}.
+}. 
 
-As we can see \os{detail experiment + add figure}
+
+\begin{figure}[tb]
+  \centering
+  	\includegraphics[width=0.45\textwidth]{heuristic_value.jpg}
+  	\vspace{-2mm}
+  \caption{
+		Progress of MHA*---heuristic values as a function of the number of queue expansions.
+		When a local minima is detected (red cross) in the baseline heuristic (cyan), a dynamic heuristic is generated (blue) until the local minima is escaped (green circle) or until a local minima is detected (blue cross) in the dynamic heuristic.
+		Plots depicting the baseline heuristic values when only a limited amount of guidance is given demonstrate that without guidance, the planner remains stuck in the local minima.	
+		}
+\vspace{-5mm}
+   	\label{fig:res}
+\end{figure}
 
 While providing promising initial results, our framework is far from being complete.
 We are interested in experimenting with alternative forms of user guidance such as providing a \emph{constrained submanifold} of the configuration space. This may be used to guide the humanoid to use the railing while planning the stairs.
