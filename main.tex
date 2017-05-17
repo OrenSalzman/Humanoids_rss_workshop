@@ -157,7 +157,7 @@ $\kappa_\Q(i, \omega_1) = \min_{i-\omega_1 \leq j \leq i} \{ h_\Q(s_j)\}$.
 Namely, $\kappa_\Q(\omega,i)$ denotes the minimal value attained by $h_\Q$ in the past $\omega_1$ states. 
 %
 We will say that the planner is in a local minima for $\Q$ if 
-$\kappa_\Q(i, \omega_1) \geq \kappa_\Q(i - \omega_2, \omega_1 - i) - \varepsilon$.
+$\kappa_\Q(i, \omega_1) \geq \kappa_\Q(i - \omega_2, \omega_1 - \omega_2) - \varepsilon$.
 Namely, if looking at the previous $\omega_1$ iterations, 
 there was no reduction 
 (by more than some threshold $\varepsilon$) 
@@ -203,7 +203,7 @@ Furthermore, we assume that there exists a family of (possibly inadmissible) heu
 Given a user guide in the form of a configuration $\hat{q}$, we dynamically generate a new heuristic $$
     \hat{h}(s)= 
 \begin{cases}
-    h_{\hat{q}}(s) + h_{\text{goal}}(s),	& 
+    h_{\hat{q}}(s) + h_{\text{goal}}(\hat{q}),	& 
     		\text{if } \hat{q} \text{ is not an ancestor of } s,\\
     h_{\textbf{•}{goal}}(s),            		& 
     		\text{if } \hat{q} \text{ is an ancestor of } s.
