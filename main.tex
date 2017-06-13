@@ -66,6 +66,7 @@ We are interested in planning in high-dimensional, constrained spaces such as th
 In such settings, workspace regions often give little guidance to the planner due to the dimension of the configuration space as well as the physical constraints of the robot.
 Similarly, obtaining user guidance in the configuration space is extremely time consuming, even for expert users.
 
+
 Thus,  while beneficial, user guidance should be employed scarcely.
 Our key insight is that carefully chosen individual configurations suggested by a user can be used to effectively guide the planner when in need of guidance.
 
@@ -150,11 +151,11 @@ The heuristic functions of search-based planning algorithms, such as MHA*, can b
 We suggest to identify when the planner is in a local minima as follows:
 Let~$\Q$ be a priority queue 
 ordered according to some heuristic function~$h_\Q(\cdot)$,
-$s_i$ be the node expanded from~$\Q$ at the $i$'th iteration and $\omega_1, \omega_2$ parameters such that $\omega_1 > \omega_2$.
+$s_i$ be the node expanded from~$\Q$ at the $i$'th iteration and $\omega_1, \omega_2$ be parameters such that $\omega_1 > \omega_2$.
 %
 We define 
 $\kappa_\Q(i, \omega_1) = \min_{i-\omega_1 \leq j \leq i} \{ h_\Q(s_j)\}$.
-Namely, $\kappa_\Q(\omega,i)$ denotes the minimal value attained by $h_\Q$ in the past $\omega_1$ states. 
+Namely, $\kappa_\Q(\omega,i)$ denotes the minimal value attained by $h_\Q$ in the past~$\omega_1$ states. 
 %
 We will say that the planner is in a local minima for $\Q$ if 
 $\kappa_\Q(i, \omega_1) \geq \kappa_\Q(i - \omega_2, \omega_1 - \omega_2) - \varepsilon$.
@@ -193,11 +194,12 @@ Once user guidance is invoked,
 a configuration in the local minima is obtained and the robot is placed in that configuration (as well as the start configuration and target region) in the GUI.
 This allows the user to try and understand where the planner faces difficulty and how to guide it out of the local minima.
 The user then suggests the guidance $\hat{q}$ by moving the robot's joints and end effectors.
+We note that the user is \emph{not} required to be familiar with the search algorithm.
 
 \subsection{Using user guidance}
 \label{sec:q3}
 We assume that MHA* has at least one heuristic $h_{\text{goal}}$ which approximates the cost to reach the goal from every state.
-Furthermore, we assume that there exists a family of (possibly inadmissible) heuristic functions $\H$, such that for every configuration~$q$, there exists a heuristic $h_q \in \H$ where $h_q(s)$ estimates the cost to reach $q$ from state $s$.
+Furthermore, we assume that there exists a family of (possibly inadmissible) heuristic functions $\H$, such that for every configuration~$q$, there exists a heuristic $h_q \in \H$ where~$h_q(s)$ estimates the cost to reach $q$ from state $s$.
 %%%%
 
 Given a user guide in the form of a configuration $\hat{q}$, we dynamically generate a new heuristic $$
@@ -236,12 +238,12 @@ as well as in the supplementary video\footnote{
 
 \begin{figure}[tb]
   \centering
-  	\includegraphics[width=0.45\textwidth]{heuristic_value.jpg}
+  	\includegraphics[width=0.4\textwidth]{heuristic_value.jpg}
   	\vspace{-2mm}
   \caption{
 		Progress of MHA*---heuristic values as a function of the number of queue expansions.
 		When a local minima is detected (red cross) in the baseline heuristic (cyan), a dynamic heuristic is generated (blue) until the local minima is escaped (green circle) or until a local minima is detected (blue cross) in the dynamic heuristic.
-		Plots depicting the baseline heuristic values when only a limited amount of guidance is given demonstrate that without guidance, the planner remains stuck in the local minima.	
+		Plots depicting the baseline heuristic values when only a limited amount of guidance is given demonstrate that without guidance, the planner remains stuck in local minima (we note that as MHA* is complete, it will eventually escape all local minima).
 		}
 \vspace{-5mm}
    	\label{fig:res}
